@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!--
+    Contact contact = new Contact();
+    contact.setMobile("010-2880-3998");
+    contact.setemail("ojh3998@naver.com");
+   -->
+   <!--
+    id    : Spring Container 에 저장할 bean 의 이름
+    class : Spring Container 에 저장할 bean 의 타입
+    scope : Spring Container 에 저장할 bean 의 Life Cycle
+      - singleton : bean 을 하나만 만들어 제공한다.(디폴트)
+      - prototype : 요청할 때마다 새로운 bean 을 만들어 제공한다. (주세요 할때 마다 주는 것)
+   -->
+   <!-- 
+    property 태그 : Setter 를 이용해서 값을 전달하는 태그(세터가 없으면 오류남)
+   -->   
+  <bean id="contact" class="com.min.app01.pkg01.Contact" scope="singleton">
+    <property name="mobile">
+      <value>010-2880-3998</value>
+    </property>
+    <property name="email" value="ojh3998@naver.com" />
+  </bean>
+    
+
+</beans>

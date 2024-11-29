@@ -1,4 +1,4 @@
-package com.min.app01.pkg01;
+package com.min.app01.pkg01_setter;
 
 import lombok.Getter;
 import lombok.Setter;

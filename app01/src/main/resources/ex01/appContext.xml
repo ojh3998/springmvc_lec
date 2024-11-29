@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+
+<bean id="adder"      class="com.min.app01.ex01.Adder" scope="singleton"/>
+<bean id="multiplier" class="com.min.app01.ex01.Multiplier" scope="singleton"/>
+<bean id="subtract"  class="com.min.app01.ex01.Subtractor" scope="singleton"/>
+<bean id="divider"    class="com.min.app01.ex01.Divider" scope="singleton"/>
+
+<!-- setter 이용 -->
+<bean id="calc1" class="com.min.app01.ex01.Calculator" scope="singleton">
+  <property name="brand" value="계산기"/>
+  <property name="module1" ref="adder"/>
+  <property name="module2" ref="multiplier"/>
+  <property name="module3" ref="subtractor"/>
+  <property name="module4" ref="divider"/>
+</bean>
+
+<!-- constructor 이용 -->
+<bean id="calc2" class="com.min.app01.ex01.Calculator" scope="singleton">
+ <constructor-arg value="기계"/>
+ <constructor-arg ref="adder"/>
+ <constructor-arg ref="multiplier"/>
+ <constructor-arg ref="subtractor"/>
+ <constructor-arg ref="divider"/>
+</bean>
+
+</beans>
+ 
+ 
+
+

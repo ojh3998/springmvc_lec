@@ -13,7 +13,7 @@ import lombok.ToString;
 
 
 /*
- * DI 방식  - Constructor 주입
+ * DI 방식 3 - Constructor 주입
  * Spring Container 에 있는 bean을 Constructor 형식의 메소드의 매개변수에 주입
  * Constructor 형식의 메소드에 @Autowired 를 한번만 추가 하면 됨.
  * Spring Framework 4.3 이후 버전에서는 @Autowired 생략가능

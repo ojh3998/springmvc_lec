@@ -27,13 +27,13 @@ import lombok.ToString;
 
 //@AllArgsConstructor // 생성자 를 만들어 주는 코드 이기때문에 이것만 적으면 끝~!~!~
  @RequiredArgsConstructor // Person(Address, Contact) + @NonNull                  
- 
+ // final field를 위한 생성자 자동생성방식
 @Component
 @ToString
 public class Person {
   
   // field
-  
+  // final field 는 생성자에서 주입받아야 함!
   private final Address address;
   private final Contact contact;           // final키워드는 원래 생성과 동시에 초기화를 진행해야 하지만, 생성자가있으면 가능하다~!~!~!
   

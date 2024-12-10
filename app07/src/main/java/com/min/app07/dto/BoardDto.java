@@ -18,9 +18,9 @@ import lombok.ToString;
 
 public class BoardDto {
 	private int boardId;
-	private String titile;
+	private String title;
 	private String contents;
 	private Timestamp createDt;
-	private int usrId;
-
+ // private int usrId;
+	private UserDto userDto;
 }

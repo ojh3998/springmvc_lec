@@ -1,0 +1,97 @@
+1.jsp에서 요청한 것 controller에서 받아내기
+2.cotroller -> service-> dao -> mapper
+
+요청 순서
+jsp  -> controller -> service -> dao -> mapper
+
+
+둘 이상의 데이터를 하나로 모을때 --  Map<>
+
+service는 값의 반환을 controller에 함
+
+parameter의 타입은 string or stirng[] 
+내용을 동일하게 맞춰주면 배열로 감
+하지만 생략가능
+
+
+
+write.jsp 에서 name을 userDto.usrId 로 
+BoardController 에서 @RequestMapping(value="/register.do", method=RequestMethod.POST)
+			 return "redirect:/board/list.do";
+
+IBoardService 에서
+String registerBoard(BoardDto boardDto); 작성
+BoardServiceImpl 에서 오버라이드  return boardDao.insertBoard(boarDto) == 1 ? "삽입 성공" : "삽입 실패";
+
+BoardController 에서 @RequestMapping(value="/register.do", method=RequestMethod.POST)
+	                public String register(BoardDto boardDto, RedirectAttributes redirectAttributes) {
+	           // 삽입 서비스로부터 삽입 결과를 받아온 뒤, 해당 정보를 리다이렉트 할 수 있도록 redirectAttribute에 저장합니다.
+		    redirectAttributes.addFlashAttribute("msg", boardService.registerBoard(boardDto));
+		    return "redirect:/board/list.do";
+
+
+
+검색 만들기
+list.jsp
+<div>
+<form action="${contextPath}/board/search.do">
+ <input type="text" name="title" placeholder="제목 검색"><br/>
+  <input type="text" name="usrEmail" placeholder="작성자 이메일 검색"><br/>
+  <input type="text" name="usrName" placeholder="작성자 이름 검색"><br/>
+  <input type="date" name="startDate"> - <input type="date" name="endDate"><br/>
+  <button type="submit">검색</button>
+ </form>
+</div>
+    
+ >> boardMapper.xml을보고 만든것임
+
+BoardController 로 가서
+@RequestMapping(value="/search.do")
+public String search(HttpServletRequest request, Model model) {
+		
+		
+   return "/board/list";
+ }
+
+IBoardService 에서
+getBoardList 처럼 만들기위해 Map을 이용
+ Map<String, Object> getSearchList(HttpServletRequest request);
+
+BoardServiceImpl에서
+@Override
+public Map<String, Object> getSearchList(HttpServletRequest request) {
+		
+	// 요청 파라미터를 Map으로 만들어야합니다.
+	Map<String, Object> param = Map.of("title", request.getParameter("title")
+				          , "usrEmail", request.getParameter("userEmail")
+				           , "usrName", request.getParameter("usrName")
+				                          , "startDate", request.getParameter("startDate")
+				                          , "endDate", request.getParameter("endDate"));
+		
+		// 검색 결과 목록을 가져옵니다.
+		List<BoardDto> boardList = boardDao.selectBoardIntegeratedSearch(param);
+		
+		// 검색 결과 개수를 가져옵니다.
+		int boardCount = boardDao.selectBoardIntegratedSearchCount(param);
+		
+		// 검색 결과 목록과 검색 개수를 Map으로 반환합니다.
+		return Map.of("boardList", boardList, "boardCount", boardCount);
+		
+	
+다시 BoardController 로 가서
+
+@RequestMapping(value="/search.do")
+	public String search(HttpServletRequest request, Model model) {
+		
+		// 검색 서비스로부터 검색 결과 목록과 검색 결과 개수를 받아옵니다.
+		Map<String, Object> map = boardService.getSearchList(request);
+		
+		// 검색 결과 목록과 검색 결과 개수를 JSP로 전달할 수 있도록  model에 저장합니다.
+		model.addAttribute("boardList", map.get("boardList"));
+		model.addAttribute("boardCount", map.get("boardCount"));
+		
+		
+		return "/board/list";
+	}
+	
+메소드 안에채워주면끝	

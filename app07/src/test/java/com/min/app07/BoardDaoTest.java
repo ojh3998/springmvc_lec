@@ -95,7 +95,7 @@ class BoardDaoTest {
 
   @Test
   void 선택항목삭제테스트() {
-	  int[] numbers = {1, 2, 3};
+	  String[] numbers = {"1", "2", "3"};
 	  assertEquals(numbers.length, boardDao.deleteSelectedBoard(numbers));
 	  		// numbers.length -- 다지우기 위해서
   }

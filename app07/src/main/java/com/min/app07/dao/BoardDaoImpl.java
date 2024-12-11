@@ -71,6 +71,12 @@ public class BoardDaoImpl implements IBoardDao {
 		return List;
 	}
 	
+	@Override
+	public int selectBoardIntegratedSearchCount(Map<String, Object> map) {
+		int boardCount = template.selectOne("mybatis.mappers.boardMapper.selectBoardIntegratedSearchCount", map);
+		return boardCount;
+	}
+	
 
 	@Override
 	public int insertBoard(BoardDto boardDto) {
@@ -85,13 +91,13 @@ public class BoardDaoImpl implements IBoardDao {
 	}
 
 	@Override
-	public int deleteBoard(int boardDto) {
-		int result = template.delete("mybatis.mappers.boardMapper.deleteBoard", template);
+	public int deleteBoard(int boardId) {
+		int result = template.delete("mybatis.mappers.boardMapper.deleteBoard", boardId);
 		return result;
 	}
 	
 	@Override
-	public int deleteSelectedBoard(int[] numbers) {
+	public int deleteSelectedBoard(String[] numbers) {
 		int result = template.delete("mybatis.mappers.boardMapper.deleteSelectedBoard", numbers);
 		return result;
 	}

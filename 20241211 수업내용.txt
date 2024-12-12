@@ -21,7 +21,9 @@ BoardController 에서 @RequestMapping(value="/register.do", method=RequestMetho
 
 IBoardService 에서
 String registerBoard(BoardDto boardDto); 작성
-BoardServiceImpl 에서 오버라이드  return boardDao.insertBoard(boarDto) == 1 ? "삽입 성공" : "삽입 실패";
+
+BoardServiceImpl 에서
+ 오버라이드  return boardDao.insertBoard(boarDto) == 1 ? "삽입 성공" : "삽입 실패";
 
 BoardController 에서 @RequestMapping(value="/register.do", method=RequestMethod.POST)
 	                public String register(BoardDto boardDto, RedirectAttributes redirectAttributes) {

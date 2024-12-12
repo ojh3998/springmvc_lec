@@ -1,0 +1,119 @@
+2024 12/12 수업 2
+
+1. maven project 생성 app09
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+2. pom.xml , 과 web.xml 그전에 만들어논거 카피 한후 업데이트 
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+3. root-context.xml 복붙 app09 로수정
+   servlet-context 
+    <resources mapping="/assets/**" location="/assets/" /> 경로 수정
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+4.src/main/webapp/ 밑에 asssets 폴더 만들고 그밑에 css, images, js 3가지폴더만들기
+5. 각각 폴더밑에 파일만들기
+6. main.jsp로 와서 작업하기
+head태그안에 스타일 주고
+<style>
+  .logo {
+    font-size: 0px;
+    width: 136px;
+    height: 46px;
+    background-image: url('/app09/assets/images/logo_google.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    margin: 20px auto;
+    cursor: pointer;
+  }
+</style>
+
+</head>
+바디태그에 스크립트
+<body>
+  
+  <h1 id="logo" class="logo">Google</h1>
+  
+  <script>
+  
+  	const logo = document.getElementById('logo');
+  	logo.addEventListener('click', (event) => {
+  		location.href = '${contextPath}/main.do';
+  	})
+  
+  
+  </script>
+  </body>
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+7. but 우리가 따로 css 파일과 js파일을 만들었기 때문에
+따로따로 만들어서 jsp 에서 불러오기로함
+불러오는 방법은
+css
+head 태그 안에
+<link rel="stylesheet" href="${contextPath}/assets/css/main.css"> +rel="stylesheet" 는 그냥 css에서 정해진 것
+
+js
+body 태그안에
+ <script src="${contextPath}/assets/css/main.js"></script>
+
+but css파일은 그냥 복붙하면 되지만
+     js에서는 ${contextPath}가 적용이안됨 그래서 
+    js에서 함수로만들어주는 작업을 해야함
+
+function getContextPath() {
+	const url = location.href; 						 /* http://localhost:8080/app09/main.do */
+	const host = location.host; 					 /* locathost:8080 */
+	const begin = url.indexOf(host) + host.length;   /* 7 + 14 = 21                    : contextPath 의 시작 인덱스 */ 
+	const end = url.indexOf('/', begin + 1);	     /* 22번째 인덱스부터 찾아라  = 27 : Mapping의 시작 인덱스 */
+	const contextPath = url.substring(begin, end);   /* 인덱스 begin부터 인덱스 end 이전까지 */
+	return contextPath;
+} 
+
+
+function toMain() {
+  const logo = document.getElementById('logo');
+  logo.addEventListener('click', (event) => {
+    location.href = getContextPath() + '/main.do';
+  })
+}
+
+onload = () => {
+	toMain();
+}
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+8. workbench에서 DB 작업하기 -- table 만들고 돌리기
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+9. package 5개 만들기
+controller
+dao
+dto
+servie
+util
+
+(1) dto 부터 작업 table 별로 생성
+AttachDto 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@ToString
+lombok6개
+public class AttachDto {
+  
+  private int attachId;
+  private int noticeId;
+  private String filePath;
+  private String originalFilename;
+  private String filesystemName;
+
+} -- db 테이블만든거 보고 하면됨. table이 두개니까 NoticeDto 도 같은 방식으로 만들면 됨.
+여기까지하면  http://localhost:8080/app09/ 기에
+ 로고 클릭하면 http://localhost:8080/app09/main.do 까지 만든 것임
+
+
+

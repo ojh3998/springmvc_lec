@@ -1,0 +1,315 @@
+2024/ 12/ 12 수업   1                                                  *xml이 수정되면 서버 재시작 하기
+마이페이지 프로필 사진 하나 삽입 하는 로직 구현 
+이미지 첨부하면 저장 업로드
+이미지로 첨부파일을 제한까지 추가함
+
+1. maven project 생성  app08기준 코드들임
+--------------------------------------------------------------------------------------------------------------------------------
+
+2. pom.xml , 과 web.xml 그전에 만들어논거 카피 한후 업데이트 
+   에러가 뜰꺼임 home.jsp와 homecontroller 삭제하면 없어짐 - 기본적으로 만들어진 것들
+--------------------------------------------------------------------------------------------------------------------------------
+
+3 mybatils 설정
+   src/main/resources
+   밑에 mybatis.configuration 패키지 / mybatis-config.xml 만들기
+          mybatis.mappers 패키지     / fileMappers.xml 만들기
+--------------------------------------------------------------------------------------------------------------------------------
+
+4. root-context.xml 작업 
+    <!-- CommonsMultipartResolver : 파일 업로드를 위해서 스프링이 호출해서 사용하는 bean.  multipartResolver 이름으로 생성해야 합니다. -->
+  <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+  	<property name="defaultEncoding" value="UTF-8"/>
+  	<property name="maxUploadSizePerFile" value="10485760"/>
+  	<property name="maxUploadSize" value="104857600"/>
+  </bean>
+--------------------------------------------------------------------------------------------------------------------------------
+
+5. controller, dao, dto, service 패키지만들기
+   db 보고 dto 부터 만들기 	
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Getter
+	@Setter
+	@Builder
+	@ToString
+	public class FileDto {
+		private int fileId;
+		private String writer;
+		private String filePath;
+		private String originalFilename;
+		private String filesystemName;
+
+	}
+
+  controller 패키지 - mvcController 클래스
+	@Controller
+	public class MvcController {
+
+  	@RequestMapping(value={"/", "/main.do"})
+ 	 public String main() {
+  	  return "main"; // main.jsp 열어주기
+  	   }
+    
+	}
+	
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+6.DAO만들기 
+   IFileDao 인터페이스 만들기
+	public interface IFileDao {
+  		List<FileDto> selectFileList();
+		int insertFile(FileDto fileDto);
+
+	}
+
+  FileDaoImpl 클래스만들기--> IFileDao 참조해서
+	@RequiredArgsConstructor            
+	@Repository
+	public class FileDaoImpl implements IFileDao {
+	
+		private final SqlSessionTemplate template;
+
+		@Override
+		public List<FileDto> selectFileList() {
+			return template.selectList("mybatis.mappers.fileMapper.selectFileList");
+		
+		}
+
+		@Override
+		public int insertFile(FileDto fileDto) {
+			return template.insert("mybatis.mappers.fileMapper.insertFile", fileDto);
+		
+		}
+
+	}
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+7.fileMapper.xml  ==> 경로 src/main/resource 밑에 mybatis 밑에 mappers 밑에 있음
+
+	<mapper namespace="mybatis.mappers.fileMapper">
+   
+	<select id="selectFileList" resultType="FileDto">                           // id 는 뭐라고? 일부러 메소드이름이랑 맞춤!
+  		SELECT file_id, file_path, original_filename, filesystem_name
+  		  FROM tbl_file
+  		ORDER BY file_id DESC  
+	  </select>
+  
+	  <insert id="insertFile" parameterType="FileDto">
+  		INSERT INTO tbl_file
+  		VALUES (null, #{filePath}, #{originalFilename}, #{filesystemName})
+ 	 </insert>
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+8. main.jsp 만들고 ==> views 밑에 있음 메인 화면 만드는작업 단일파일업로드라는 링크가 만들어짐
+	바디태그안
+	<a href="${contextPath}/single/list.do">단일파일업로드</a> 
+--------------------------------------------------------------------------------------------------------------------------------
+
+여기서부터 왔다 갔다 하니 잘 봐야함~
+
+9.FileController 만들고
+	@Controller
+	public class FileController {
+	@RequestMapping(value="/single/list.do")
+	public String list() {
+
+		return "list";
+		} 
+	}
+
+
+  list.jsp 만들고 ==> views 밑에 만들면 됨 main.jsp와 같은 수준
+
+  	<div class="form-wrap">
+   	<h1>File Upload</h1>
+  	 <!-- 파일 업로드를 위한 <form> 태그는 method 속성과 enctype 속성이 정해져 있습니다. -->
+  	 <form action="${contextPath}/single/upload.do" method="post" enctype="multipart/form-data">
+  	  <input type="text" name="writer" placeholder="작성자"><br/>
+  	  <input type="file" name="file" id="file" accept="image/*"><br/>  <!--  accept="image/*" 를 이용해서 첨부파일을 이미지로 제한 -->
+    	<button type="submit">제출</button>
+   	</form>
+  	</div>
+  
+
+  다시 FileController 에서
+	@RequestMapping(value="/single/upload.do", method=RequestMethod.POST)
+		public String upload(MultipartHttpServletRequest multipartRequest) {
+		
+		return "redirect:/single/list.do";
+	}
+--------------------------------------------------------------------------------------------------------------------------------
+
+10. IFileService 만들고
+
+	public interface IFileService {
+		List<FileDto> getFileList();
+		String uploadFile(MultipartHttpServletRequest multipartRequest);
+	}
+
+  FileServiceImpl 클래스를 만듬 => IFileService 참조해서
+	private final IFileDao fileDao;
+		private final FileUtil fileUtil;
+	
+		@Override
+		public List<FileDto> getFileList() {
+			return fileDao.selectFileList();
+		}
+		
+
+	@Override
+	public String uploadFile(MultipartHttpServletRequest multipartRequest) {
+		
+		
+		// 일반 요청 파라미터
+		String writer = multipartRequest.getParameter("writer");
+		
+		// 첨부 파일 파라미터
+		MultipartFile multipartFile = multipartRequest.getFile("file");
+		
+		
+		
+		return null;
+	}
+
+  다시 FileController 에서
+	@RequiredArgsConstructor
+@Controller
+public class FileController {
+	
+	private final IFileService fileService;
+	
+	@RequestMapping(value="/single/list.do")
+	public String list(Model model) {
+		model.addAttribute("fileList", fileService.getFileList());
+		return "list";
+	}
+	
+	@RequestMapping(value="/single/upload.do", method=RequestMethod.POST)
+	public String upload(MultipartHttpServletRequest multipartRequest, RedirectAttributes redirectAttributes) {
+		
+		redirectAttributes.addFlashAttribute("msg", fileService.uploadFile(multipartRequest));
+		
+		return "redirect:/single/list.do";
+	}
+}
+
+다시  FileServiceImpl 클래스에서
+	@RequiredArgsConstructor
+@Service // 서비스가 사용하는 @Component 입니다.
+public class FileServiceImpl implements IFileService {
+
+	private final IFileDao fileDao;
+	private final FileUtil fileUtil;
+	
+	@Override
+	public List<FileDto> getFileList() {
+		return fileDao.selectFileList();
+	}
+		
+
+	@Override
+	public String uploadFile(MultipartHttpServletRequest multipartRequest) {
+		
+		
+		// 일반 요청 파라미터
+		String writer = multipartRequest.getParameter("writer");
+		
+		// DB로 보낼 FileDto 객체
+		FileDto fileDto = new FileDto();
+		fileDto.setWriter(writer);
+		
+		// 첨부 파일 파라미터
+		MultipartFile multipartFile = multipartRequest.getFile("file");
+		
+		// 첨부 파일이 존재하는지 확인
+		if(!multipartFile.isEmpty()) {
+		 
+			// 첨부 파일의 원래 이름
+			String originalFilename = multipartFile.getOriginalFilename();
+			
+			// 첨부 파일 저장 이름
+		    String filesystemName = fileUtil.getFilesystemName(originalFilename);
+		    
+		   // 첨부파일의 저장 경로                                     //이따 확인하세요
+		   String filePath = fileUtil.getFilePath();
+		   File dir = new File(filePath);
+		    if(!dir.exists())
+		    	dir.mkdirs();
+		    
+		    // 첨부 파일을 HDD에 저장하기
+		    try {
+		    	multipartFile.transferTo(new File(dir, filesystemName));
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			// DB로 보낼 FileDto에 파일 정보 추가하기
+		    fileDto.setFilePath(filePath);
+		    fileDto.setOriginalFilename(originalFilename);
+		    fileDto.setFilesystemName(filesystemName);
+		}
+		
+		
+		// DB로 FileDto 보내서 저장한 뒤, 결과 메시지 반환하기
+		return fileDao.insertFile(fileDto) == 1? "삽입 성공" : "삽입 실패";
+		
+	}
+
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+11. list.jsp 에서
+<body>
+
+	<img src="${contextPath}/resources/images/logo_google.png" width="300px">
+
+  <div class="form-wrap">
+   <h1>File Upload</h1>
+   <!-- 파일 업로드를 위한 <form> 태그는 method 속성과 enctype 속성이 정해져 있습니다. -->
+   <form action="${contextPath}/single/upload.do" method="post" enctype="multipart/form-data">
+    <input type="text" name="writer" placeholder="작성자"><br/>
+    <input type="file" name="file" id="file" accept="image/*"><br/>                           <!--  accept="image/*" 를 이용해서 첨부파일을 이미지로 제한 -->
+    <button type="submit">제출</button> 
+   </form>
+  </div>
+  
+  <hr>
+  
+  <div>
+  	<h1>Upload File List</h1>
+    <c:forEach items="${fileList}" var="f">
+      <div class="file">
+       <img src="${contextPath}${f.filePath}/${f.filesystemName}" width="100px">
+       작성자 : ${f.writer} | 파일명 : ${f.originalFilename} | 저장명 : ${f.filePath}/${f.filesystemName}
+      </div>
+    </c:forEach>
+  </div>
+    
+  
+  <script> 	 
+  
+ 	const msg = '${msg}';
+ 	if(msg !== '')
+ 		alert(msg);
+ 	
+ 	document.getElementById('file').addEventListener('change', (event) => {
+ 	const limit = 1024 * 1024 * 10;
+ 	const size = event.currentTarget.files[0].size;
+ 	if(size > limit) {
+ 		alert('첨부 파일의 크기는 최대 10MB 입니다.')
+ 	 }
+ 	})
+ 		
+  </script>
+
+</body>
+
+     
+     

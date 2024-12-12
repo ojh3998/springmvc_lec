@@ -35,7 +35,8 @@ INSERT INTO tbl_board VALUES (NULL, '20241211_식단', '파스타, 리조토, �
 COMMIT;
 
 SELECT board_id, title, contents, b.usr_id, usr_email, usr_name, create_dt
-  FROM tbl_board b INNER JOIN tbl_user u
+  FROM tbl_board b 
+  INNER JOIN tbl_user u
     ON b.usr_id = u.usr_id
  ORDER BY board_id DESC;
  

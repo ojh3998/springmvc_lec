@@ -20,7 +20,7 @@ public class NoticeDto {
   private int noticeId;
   private String noticeTitle;
   private String noticeContents;
-  private Timestamp createAt;
-  
+  private Timestamp createdAt;
+  private int attachCount;
 
 }

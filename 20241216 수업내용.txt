@@ -1,0 +1,98 @@
+2024 12 16 수업 목록보기 페이징 작업 
+ 처음 작업은 같으니 이제 자세히 적지 않겠음
+
+app10 기준
+dto -> dao - > mappers - service & util 
+
+1. UserDto
+  DB 보고 만들기, 6개 어노테이션 추가
+
+2. IUserDao 
+	public interface IUserDao {
+  	  List<UserDto> selectUserList(Map<String, Object> map);
+  	  int selectUserCount();
+  }
+3. UserMapper.xml 생성
+	먼저 namespace 수정
+	<mapper namespace="mybatis.mappers.userMapper">
+	
+4. UserDaoImpl --> IUserDao 인터페이스 참조해서 생성
+	@RequiredArgsConstructor
+	@Repository
+	public class UserDaoImpl implements IUserDao {
+  
+ 	 private final SqlSessionTemplate template; 
+
+	  @Override
+	   public List<UserDto> selectUserList(Map<String, Object> map) {
+	    return template.selectList("mybatis.mappers.userMapper.selectUserList", map);      // mybatis.mappers.userMapper 요거 는 UserMapper.xml의 namespace에서 복붙 
+	  }                      // 전달할 것이 여러가지면 selectList 아니면 selectOne                 // .뒤에는 메소드이름
+  
+	  @Override
+	  public int selectUserCount() {
+	    return template.selectOne("mybatis.mappers.userMapper.selectUserCount");
+	  }
+
+	}
+ 
+5.  다시 UserMapper.xml 가서 쿼리문 작성
+
+	<select id="selectUserList" parameterType="Map" resultType="UserDto">  // id 는 UserDaoImpl의 메소드 이름 과 똑같이 만들어줌
+	    SELECT id, first_name, last_name, email, gender, ip_address
+	      FROM tbl_user
+	    ORDER BY id ${sort}          
+	    LIMIT #{offset}, #{display}
+	  
+	  </select>
+	  <select id="selectUserCount" resultType="int">
+	    SELECT COUNT(*)
+	      FROM tbl_user
+	  </select>
+	
+
+6. MvcController 생성
+	@Controller
+	public class MvcController {
+
+ 	 @RequestMapping(value={"/", "/main.do"})
+	  public String main() {
+ 	   return "main"; // main.jsp로 연결해서  열어주는 controller
+ 	 }
+  
+}
+
+7. main.jsp 생성
+	<a href="${contextPath}/user/list.do">회원목록</a>
+-------------------------------------------------------------------------------------- 여기까지하면  main 화면 
+
+8. IUserService 인터페이스 만들기
+ 	Map<String, Object> getUserList(HttpServletRequest request);
+
+9. UserServiceImpl --> IUserService 참조해서 만들기
+
+ 여기서부터는 직접 보기
+list.jsp 만들기 -> UserController 만들기 -> PageUtil 만들기
+
+Util pakage - PageUtile class -- Secvice에서 호출할 메소드
+여기 안에 
+@Component // Spring Container에 저장하기
+@Getter // 얼마인지 알 수 있기 위해 getter추가
+public class PageUtil {
+  
+  private int page; // 페이지 번호 (요청할 때 전달되는 요청 파라미터, 디폴트 1)
+  private int display; // 한 페이지에 보여주는 목록의 갯수 (요청 파라미터, 디폴트 20)
+  private int offset; // 각 페이지 마다 표시할 게시글의 시작번호 (page와 display에 의해서 계산되는 항목)
+  
+  // service에서 호출할 method
+  /**
+   * 서비스로부터 page와 display 값을 받아온 뒤 offset을 구하는 메소드 
+   * @param page 현재 페이지 번호
+   * @param display 현재 페이지에 표시할 목록의 갯수
+   */
+  public void setPaging(int page, int display) {
+    
+    this.page = page;
+    this.display = display;
+    offset = (page - 1) * display;
+    
+  }

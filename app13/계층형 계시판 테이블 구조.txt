@@ -1,0 +1,52 @@
+1.원글 작성하는 방법    insertBbs                    
+	depth    	0       			
+	group_id 	bbs_id  자기 아이디를 가진다.
+	group_order 	0 
+
+
+
+2.댓글 작성하는 방법 
+	1)기존 댓글 업데이트	같은 그룹 내 댓글 중 
+				원글의 group_order 보다 
+				큰 group_order를 가지는 댓글들
+	  			의 group_order를 1씩 증가시켜줘야함.
+	2) 댓글 등록
+	 depth            원글의 depth + 1
+	 group_id         원글의 group_id
+	 group_order      원글의 group_order + 1
+
+
+
+				정렬 이전의 테이블
+	bbs_id		contents	depth	  group_id	group_order
+	  1		오늘점심?	  0	    1		     0
+	  2              ㄴ백반(1)	  1         1                1 -> 2 -> 3 -> 4 -> 5               첫댓글이기 때문에 그냥 삽입만 함
+          3              ㄴ짬뽕(2)	  1         1                1 -> 2 -> 3 -> 4						  
+	  4		오늘저녁          0         4                0
+          5              ㄴ해장국(3)      1         1                1                          점심에 댓글 단것임 하지만 테이블에는 순서대로 표시댐
+	  6                ㄴ싫어(a)      2         1                2 -> 3                           해장국 밑에 대댓글, 원글이 해장국이 되는 것임.
+          7                ㄴ난좋아(b)    2         1                2
+
+
+정렬 기준
+1차 정렬 	group_id DESC
+2차 정렬	group_id ASC
+
+
+					정렬 이후 테이블
+  	   bbs_id		contents	depth	  group_id	group_order
+		4		오늘저녁          0         4                0
+		1		오늘점심?	  0	    1		     0
+		5                ㄴ해장국(3)      1         1                1 
+		7                 ㄴ난좋아(b)     2         1                2
+		6                 ㄴ싫어(a)       2         1                2 -> 3
+ 		3                ㄴ짬뽕(2)	  1         1                1 -> 2 -> 3 -> 4
+		2                ㄴ백반(1)	  1         1                1 -> 2 -> 3 -> 4 -> 5
+
+
+
+
+
+
+
+insert를 두가지 만들어야함 

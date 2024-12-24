@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul} %highlight(%-5level) %logger{36} -- %msg%n</pattern> <!--  [%-5level] 모든레벨은 5자리로 줄맞춰서 출력하라 -5 는 왼쪽정렬-->
+    </encoder>
+  </appender>
+  
+  <!-- 루트 디렉터리 아래 log 디렉터리 -->
+  <variable name="LOG_HOME" value="/log"/>
+  
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${LOG_HOME}/testFile.log</file>
+    <append>true</append>
+    <!-- set immediateFlush to false for much higher logging throughput -->
+    <immediateFlush>true</immediateFlush>
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+    </encoder>
+  </appender>
+  
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- rollover daily 날짜가 바뀌면 매일 새로만드는 것 100메가가 넘어가면 인덱스(%i) 다음 것으로 넘기는 것-->
+      <fileNamePattern>${LOG_HOME}/mylog-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <maxFileSize>100MB</maxFileSize>    
+      <maxHistory>60</maxHistory> <!-- 60일간 보관 -->
+      <totalSizeCap>20GB</totalSizeCap> <!-- 총 20기가 넘어가면 옛날것 부터 지워나가는 방식 -->
+    </rollingPolicy>
+    <encoder>
+      <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+    </encoder>
+  </appender>
+
+ <!-- root logger 라고부름 -->
+  <root level="DEBUG"> <!-- 여기를 info로 바꾸면 info 로 나옴 -->
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
+    <appender-ref ref="ROLLING" />
+  </root>
+
+</configuration>

@@ -1,0 +1,19 @@
+2024 12 17 수업내용 2
+com.mim.app11.aop 패키지
+BeforeAdvice.java 클래스 @Aspect 어노테이션 // Aspect 선언. 나는 AOP 방식으로 동작합니다.
+
+com.mim.app11.config 패키지
+AppConfig.java 클래스 @Configuration 어노테이션 //
+	@EnableAspectJAutoProxy // 이걸 사용하기 위해 @Configuration 을 만든것 
+	@Configuration // Spring Container 에 bean을 만들어 두는 클래스입니다.
+	public class AppConfig {
+
+	  @Bean // bean을 만드는 메소드 입니다. bean의 타입은  BeforeAdvice.class 이고,
+ 	       // bean의 이름은 before입니다.
+ 	 BeforeAdvice before() {
+  	  return new BeforeAdvice();
+  	}
+	}
+ 
+select는 트랜잭션 대상이아님
+트랜잭션은 Service 에다가 거는 것임.ㅇㄹㅇㄹ

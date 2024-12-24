@@ -1,0 +1,50 @@
+2024 12 18 수업내용
+
+로그인 만들기
+
+db 에서 만드는순서
+드롭테이블 만드는 순서와
+create table 만드는 순서는 역순
+
+
+
+main.jsp 
+보통 로그인을 한뒤 다시 로그인을 수행한 주소로 돌아간다 그러므로
+ <script>
+  	function loginForm() {
+  		
+  		document.getElementById('btn-login-form').addEventListener('click', (event) => {
+  			location.href = '${contextPath}/user/login.form?url=' + location.href;
+  		})	                          		       //뒤에 ?url=' + location.href를붙이면 주소창에
+									//http://localhost:8080/app12/user/login.form?url=http://localhost:8080/app12/
+									// 이런식으로 돌아갈 주소가 나오게 할 수있음
+  	}
+ 
+  		 
+  	loginForm();
+  </script>
+
+로그인은 select 조회 
+
+회원가입에 대한 링크
+
+가입은 insert
+dao -> iuserdao -> userdaoimple -> userMapper
+
+1바이트 = 8비트
+
+selectOne: 단일 결과를 반환할 때 사용, 결과가 1개 이상이면 예외 발생.
+selectList: 여러 결과를 반환할 때 사용, 결과가 없으면 빈 리스트 반환.
+
+HttpServletRequest request 는 controller에서 최초로 줄 수 있는 것임 
+insert 를 했으면 redirect 해야함
+
+인터셉터 등록은 servletcontect.xml에서
+
+my app
+로그인/ 로그아웃
+회원가입
+마이페이지 
+- 프로필 이미지 첨부 가능하도록 tbl_user 수정하기(이미지 경로, 이름)
+- 회원탈퇴 버튼 넣어서 구현하기
+인터셉터 동작 구현하기

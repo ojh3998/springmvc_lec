@@ -1,25 +1,28 @@
 package com.min.app01.pkg02_bean;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 public class MainClass {
 
   public static void main(String[] args) {
     
-    AbstractApplicationContext ctx = new GenericXmlApplicationContext("pkg02/appCtx.xml");
+    // AnnotationConfigApplicationContext 클래스
+    // Java Annotation(@Configuration, @Bean) 을 이용해 생성된 bean 관리
     
-    Contact c = ctx.getBean("contactBean", Contact.class);
-    System.out.println(c.getMobile());
-    System.out.println(c.getEmail());
+    AbstractApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);  // new AnnotationConfigApplicationContext("com.min.app01.pkg02_bean")
     
-    Person p = ctx.getBean("personBean", Person.class);
-    System.out.println(p.getName());
-    System.out.println(p.getContact());
-    System.out.println(p.getContact());
+    Contact contact = ctx.getBean("contact", Contact.class);
+    System.out.println(contact.getMobile());
+    System.out.println(contact.getEmail());
+    
+    Person person = ctx.getBean("person", Person.class);
+    System.out.println(person.getName());
+    System.out.println(person.getContact().getMobile());
+    System.out.println(person.getContact().getEmail());
     
     ctx.close();
+
   }
 
 }
